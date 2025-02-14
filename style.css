@@ -4,3 +4,87 @@
     border: 0;
     box-sizing: border-box;
 }
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    row-gap: 18px;
+    color: #333;
+}
+
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 12px;
+}
+
+header > p {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+header > #pixel-size {
+    border: 1px solid #333;
+    cursor: pointer;
+}
+
+main {
+    display: flex;
+    column-gap: 24px;
+}
+
+main > section {
+    border: 1px solid #808080;
+    width: 500px;
+    height: 500px;
+}
+
+main > section:last-child {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+section > label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+section:last-child > canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+section:last-child > canvas.registered {
+    cursor: pointer;
+}
+
+section:last-child > canvas.registered + span {
+    display: block;
+}
+
+section:last-child > span {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translate(-50%, -10px);
+
+    white-space: nowrap;
+    font-size: 13px;
+    color: #808080;
+}

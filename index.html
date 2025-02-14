@@ -7,6 +7,114 @@
         <link rel="stylesheet" href="./style.css" />
     </head>
     <body>
-        Hello World!
+        <input id="file" type="file" hidden />
+
+        <header>
+            <p>Pixel size</p>
+            <input id="pixel-size" type="number" value="10" min="1" max="50" />
+        </header>
+
+        <main>
+            <section>
+                <label for="file">Please register your image, click here</label>
+            </section>
+            <section>
+                <canvas id="canvas"></canvas>
+                <span>Click on the image to download it </span>
+            </section>
+        </main>
+
+        <script>
+            let pixelSize = 10; // 픽셀 사이즈
+            let registered = false; // 이미지 등록 여부
+
+            const $pixelSizeSelectBox = document.getElementById("pixel-size");
+            $pixelSizeSelectBox.addEventListener("change", function (event) {
+                try {
+                    const changedPixelSize = Number(event.target.value);
+
+                    pixelSize =
+                        isNaN(changedPixelSize) || changedPixelSize < 1
+                            ? 10
+                            : changedPixelSize;
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+
+            const $canvas = document.getElementById("canvas");
+            $canvas.addEventListener("click", function () {
+                if (!registered) {
+                    return;
+                }
+
+                const link = document.createElement("a");
+
+                link.href = canvas.toDataURL("image/png");
+                link.download = "pixel-art.png";
+                link.click();
+            });
+
+            const $fileInput = document.getElementById("file");
+            $fileInput.addEventListener("change", function (event) {
+                try {
+                    const file = event.target.files[0];
+                    if (!file) {
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function (readerEvent) {
+                        const img = new Image();
+                        img.onload = function () {
+                            const { width, height } = img;
+
+                            $canvas.width = width;
+                            $canvas.height = height;
+
+                            const context = $canvas.getContext("2d");
+                            context.drawImage(img, 0, 0);
+
+                            const adjustedBlockSize = Math.floor(
+                                img.width / Math.ceil(img.width / pixelSize),
+                            );
+
+                            for (let y = 0; y < img.height; y += pixelSize) {
+                                for (
+                                    let x = 0;
+                                    x < img.width;
+                                    x += adjustedBlockSize
+                                ) {
+                                    const pixel = context.getImageData(
+                                        x,
+                                        y,
+                                        1,
+                                        1,
+                                    ).data;
+                                    context.fillStyle = `rgba(${pixel[0]}, ${
+                                        pixel[1]
+                                    }, ${pixel[2]}, ${pixel[3] / 255})`;
+                                    context.fillRect(
+                                        x,
+                                        y,
+                                        adjustedBlockSize,
+                                        pixelSize,
+                                    );
+                                }
+                            }
+
+                            registered = true;
+                            $canvas.classList.add("registered");
+                        };
+
+                        img.src = readerEvent.target.result;
+                    };
+
+                    reader.readAsDataURL(file);
+                } catch (error) {
+                    console.log(error);
+                }
+            });
+        </script>
     </body>
 </html>
