@@ -10,8 +10,8 @@
         <input id="file" type="file" hidden />
 
         <header>
-            <p>Pixel size</p>
-            <input id="pixel-size" type="number" value="10" min="1" max="50" />
+            <p>Pixel Level</p>
+            <input id="pixel-level" type="number" value="10" min="1" max="50" />
         </header>
 
         <main>
@@ -25,18 +25,20 @@
         </main>
 
         <script>
-            let pixelSize = 10; // 픽셀 사이즈
+            let pixelLevel = 10; // 픽셀 정도? 분포도? 아무튼 예
             let registered = false; // 이미지 등록 여부
 
-            const $pixelSizeSelectBox = document.getElementById("pixel-size");
-            $pixelSizeSelectBox.addEventListener("change", function (event) {
+            const $pixelLevelSelectBox = document.getElementById("pixel-level");
+            $pixelLevelSelectBox.addEventListener("change", function (event) {
                 try {
-                    const changedPixelSize = Number(event.target.value);
+                    const changedpixelLevel = Number(event.target.value);
 
-                    pixelSize =
-                        isNaN(changedPixelSize) || changedPixelSize < 1
+                    pixelLevel =
+                        isNaN(changedpixelLevel) || changedpixelLevel < 1
                             ? 10
-                            : changedPixelSize;
+                            : changedpixelLevel;
+
+                    console.log(changedpixelLevel);
                 } catch (error) {
                     console.log(error);
                 }
@@ -76,10 +78,10 @@
                             context.drawImage(img, 0, 0);
 
                             const adjustedBlockSize = Math.floor(
-                                img.width / Math.ceil(img.width / pixelSize),
+                                img.width / Math.ceil(img.width / pixelLevel),
                             );
 
-                            for (let y = 0; y < img.height; y += pixelSize) {
+                            for (let y = 0; y < img.height; y += pixelLevel) {
                                 for (
                                     let x = 0;
                                     x < img.width;
@@ -98,7 +100,7 @@
                                         x,
                                         y,
                                         adjustedBlockSize,
-                                        pixelSize,
+                                        pixelLevel,
                                     );
                                 }
                             }

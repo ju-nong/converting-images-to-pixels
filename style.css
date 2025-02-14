@@ -32,7 +32,7 @@ header > p {
     font-weight: 500;
 }
 
-header > #pixel-size {
+header > #pixel-level {
     border: 1px solid #333;
     cursor: pointer;
 }
