@@ -16,7 +16,9 @@
 
         <main>
             <section>
-                <label for="file">Please register your image, click here</label>
+                <label id="before" for="file"
+                    >Please register your image, click here</label
+                >
             </section>
             <section>
                 <canvas id="canvas"></canvas>
@@ -25,8 +27,10 @@
         </main>
 
         <script>
-            let pixelLevel = 10; // 픽셀 정도? 분포도? 아무튼 예
-            let registered = false; // 이미지 등록 여부
+            let pixelLevel = 10; // 픽셀 정도? 분포도? 모자이크 정도? 아무튼 예
+            let imageInstance = null;
+
+            const $before = document.getElementById("before");
 
             const $pixelLevelSelectBox = document.getElementById("pixel-level");
             $pixelLevelSelectBox.addEventListener("change", function (event) {
@@ -38,7 +42,7 @@
                             ? 10
                             : changedpixelLevel;
 
-                    console.log(changedpixelLevel);
+                    drawCanvas();
                 } catch (error) {
                     console.log(error);
                 }
@@ -46,7 +50,7 @@
 
             const $canvas = document.getElementById("canvas");
             $canvas.addEventListener("click", function () {
-                if (!registered) {
+                if (imageInstance === null) {
                     return;
                 }
 
@@ -56,6 +60,31 @@
                 link.download = "pixel-art.png";
                 link.click();
             });
+            function drawCanvas() {
+                const { width, height } = imageInstance;
+
+                $canvas.width = width;
+                $canvas.height = height;
+
+                const context = $canvas.getContext("2d");
+                context.drawImage(imageInstance, 0, 0);
+
+                const adjustedBlockSize = Math.floor(
+                    width / Math.ceil(width / pixelLevel),
+                );
+
+                for (let y = 0; y < height; y += pixelLevel) {
+                    for (let x = 0; x < width; x += adjustedBlockSize) {
+                        const pixel = context.getImageData(x, y, 1, 1).data;
+                        context.fillStyle = `rgba(${pixel[0]}, ${pixel[1]}, ${
+                            pixel[2]
+                        }, ${pixel[3] / 255})`;
+                        context.fillRect(x, y, adjustedBlockSize, pixelLevel);
+                    }
+                }
+
+                $canvas.classList.add("registered");
+            }
 
             const $fileInput = document.getElementById("file");
             $fileInput.addEventListener("change", function (event) {
@@ -69,44 +98,11 @@
                     reader.onload = function (readerEvent) {
                         const img = new Image();
                         img.onload = function () {
-                            const { width, height } = img;
+                            imageInstance = img;
 
-                            $canvas.width = width;
-                            $canvas.height = height;
+                            $before.innerHTML = `<img src="${img.src}" />`;
 
-                            const context = $canvas.getContext("2d");
-                            context.drawImage(img, 0, 0);
-
-                            const adjustedBlockSize = Math.floor(
-                                img.width / Math.ceil(img.width / pixelLevel),
-                            );
-
-                            for (let y = 0; y < img.height; y += pixelLevel) {
-                                for (
-                                    let x = 0;
-                                    x < img.width;
-                                    x += adjustedBlockSize
-                                ) {
-                                    const pixel = context.getImageData(
-                                        x,
-                                        y,
-                                        1,
-                                        1,
-                                    ).data;
-                                    context.fillStyle = `rgba(${pixel[0]}, ${
-                                        pixel[1]
-                                    }, ${pixel[2]}, ${pixel[3] / 255})`;
-                                    context.fillRect(
-                                        x,
-                                        y,
-                                        adjustedBlockSize,
-                                        pixelLevel,
-                                    );
-                                }
-                            }
-
-                            registered = true;
-                            $canvas.classList.add("registered");
+                            drawCanvas();
                         };
 
                         img.src = readerEvent.target.result;
